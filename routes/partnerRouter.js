@@ -14,7 +14,7 @@ partnerRouter.route('/')
     res.setHeader('Content-Type', 'application/json');
     res.json(partners);
   })
-  .catch(err => next(err)); //next passes off the error to the overall error handler
+  .catch(err => next(err));
 })
 .post((req, res, next) => {
   Partner.create(req.body)
@@ -26,7 +26,7 @@ partnerRouter.route('/')
   })
   .catch(err => next(err));
 })
-.put((req, res) => {  //leaving this as is coz put operation is not allowed
+.put((req, res) => { 
   res.statusCode = 403;
   res.end('PUT operation not supported on /partners');
 })

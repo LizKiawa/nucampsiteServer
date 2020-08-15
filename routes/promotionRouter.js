@@ -15,7 +15,7 @@ promotionRouter.route('/')
     res.setHeader('Content-Type', 'application/json');
     res.json(promotions);
   })
-  .catch(err => next(err)); //next passes off the error to the overall error handler
+  .catch(err => next(err));
 })
 .post((req, res, next) => {
   Promotion.create(req.body)
@@ -27,7 +27,7 @@ promotionRouter.route('/')
   })
   .catch(err => next(err));
 })
-.put((req, res) => {  //leaving this as is coz put operation is not allowed
+.put((req, res) => {  
   res.statusCode = 403;
   res.end('PUT operation not supported on /promotions');
 })
@@ -58,7 +58,7 @@ promotionRouter.route('/:promotionId')
 .put((req, res, next) => {
   Promotion.findByIdAndUpdate(req.params.promotionId, {
     $set: req.body
-  }, { new: true }) //new, so we get back info about the updated document as the result from this method
+  }, { new: true })
   .then(promotion => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
