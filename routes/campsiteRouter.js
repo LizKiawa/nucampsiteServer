@@ -217,11 +217,11 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
           res.json(campsite);
         })
         .catch(err => next(err));
-        }  else {
-          err = new Error('You are not authorized!');
-          err.status = 403;
-          return next(err);
-        }  
+      } else {
+        err = new Error('You are not authorized!');
+        err.status = 403;
+        return next(err);
+      }  
     } else if (!campsite) {
       err = new Error(`Campsite ${req.params.campsiteId} not found`);
       err.status = 404;
