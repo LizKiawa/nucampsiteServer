@@ -6,8 +6,22 @@ const authenticate = require('../authenticate');
 const router = express.Router();
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+router.get('/', function (req, res, next) {  // authenticate.verifyAdmin is not working. can't find the user object
+  // res.send('respond with a resource');
+  // console.log(req.user);
+  User.find()
+  .then(users => {
+    // if (req.user.admin == true) {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json(users);
+    // } else {
+    //   err = new Error('Not authorized!');
+    //   err.status = 403;
+    //   return next(err);
+    // }
+  })
+  .catch(err => next(err));
 });
 
 router.post('/signup', (req, res) => {
