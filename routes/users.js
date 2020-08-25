@@ -2,11 +2,12 @@ const express = require('express');
 const User = require('../models/user');
 const passport = require('passport');
 const authenticate = require('../authenticate');
+const cors = require('./cors');  // one dot is to import cors module from the routes folder, not the one u installed in node_modules
 
 const router = express.Router();
 
 /* GET users listing. */
-router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, function (req, res, next) {
+router.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, function (req, res, next) {
   // res.send('respond with a resource');
   User.find()
   .then(users => {
@@ -17,7 +18,7 @@ router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, function (req
   .catch(err => next(err));
 });
 
-router.post('/signup', (req, res) => {
+router.post('/signup', cors.corsWithOptions, (req, res) => {
   User.register(
     new User({username: req.body.username}),
     req.body.password,
@@ -50,14 +51,14 @@ router.post('/signup', (req, res) => {
     });
 });
 
-router.post('/login', passport.authenticate('local'), (req, res) => {
+router.post('/login', cors.corsWithOptions, passport.authenticate('local'), (req, res) => {
   const token = authenticate.getToken({_id: req.user._id});  //create token with data from request obj
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
   res.json({success: true, token: token, status: 'You are successfully logged in!'});  // adding token to response to be stored in client
 });
 
-router.get('/logout', (req, res, next) => {   //get coz client is not submitting any data to server. we are just destroying the session
+router.get('/logout', cors.corsWithOptions, (req, res, next) => {   //get coz client is not submitting any data to server. we are just destroying the session
   if (req.session) {
     req.session.destroy();
     res.clearCookie('session-id');
