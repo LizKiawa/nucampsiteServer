@@ -9,8 +9,9 @@ const userSchema = new Schema({
   },
   lastname: {
   type: String,
-      default: ''
+    default: ''
   },
+  facebookId: String,
   admin: {
     type: Boolean,
     default: false
