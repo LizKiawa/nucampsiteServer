@@ -12,14 +12,35 @@ favoriteRouter.route('/')
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .get(cors.cors, (req, res, next) => {  // basic cors or get method. The corsWithOptions is for preflight requests
   Favorite.find()
-  .then(favorites => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.json(favorites);
+  .populate('favorite.user')
+  .then(favorite => {
+    if (favorite) {
+
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.json(favorite.filter(a => a.user._id == req.user._id));
+
+      // if ((favorite.user._id).equals(req.user._id)){
+      //   res.statusCode = 200;
+      //   res.setHeader('Content-Type', 'application/json');
+      //   res.json(favorite);
+      // } else {
+      //   err = new Error(`Favorites by ${req.user._id} not found`);
+      //   err.status = 404;
+      //   return next(err);
+      // }
+    } else {
+      err = new Error(`Favorites by ${req.user._id} not found`);
+      err.status = 404;
+      return next(err);
+    }
   })
   .catch(err => next(err));
 })
-.post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+
+
+
+.post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
   Favorite.create(req.body)
   .then(favorite => {
     console.log('Favorite Created ', favorite);
@@ -29,11 +50,11 @@ favoriteRouter.route('/')
   })
   .catch(err => next(err));
 })
-.put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => { 
+.put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => { 
   res.statusCode = 403;
   res.end('PUT operation not supported on /favorites');
 })
-.delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+.delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
   Favorite.deleteMany()
   .then(response => {
     res.statusCode = 200;
@@ -43,7 +64,7 @@ favoriteRouter.route('/')
   .catch(err => next(err));
 });
 
-favoriteRouter.route('/:favoriteId')
+favoriteRouter.route('/:campsiteId')
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .get(cors.cors, (req, res, next) => {  // basic cors or get method. The corsWithOptions is for preflight requests
   Favorite.findById(req.params.favoriteId)
@@ -54,11 +75,11 @@ favoriteRouter.route('/:favoriteId')
   })
   .catch(err => next(err));
 })
-.post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
+.post(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
   res.statusCode = 403;
   res.end(`POST operation not supported on /favorites/${req.params.favoriteId}`);
 })
-.put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+.put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
   Favorite.findByIdAndUpdate(req.params.favoriteId, {
     $set: req.body
   }, { new: true }) //new, so we get back info about the updated document as the result from this method
@@ -69,7 +90,7 @@ favoriteRouter.route('/:favoriteId')
   })
   .catch(err => next(err));
 })
-.delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+.delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
   Favorite.findByIdAndDelete(req.params.favoriteId)
   .then(response => {
     res.statusCode = 200;
